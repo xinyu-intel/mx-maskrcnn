@@ -9,7 +9,7 @@ from distutils.util import strtobool
 
 from rcnn.processing.bbox_transform import nonlinear_pred, clip_boxes
 from rcnn.processing.generate_anchor import generate_anchors_fpn, anchors_plane
-from rcnn.processing.nms import gpu_nms_wrapper
+from rcnn.processing.nms import cpu_nms_wrapper
 
 DEBUG = False
 
@@ -42,7 +42,7 @@ class ProposalFPNOperator(mx.operator.CustomOp):
             print 'num_anchors: {}'.format(self._num_anchors)
 
     def forward(self, is_train, req, in_data, out_data, aux):
-        nms = gpu_nms_wrapper(self._threshold, in_data[0][0].context.device_id)
+        nms = cpu_nms_wrapper(self._threshold)#, in_data[0][0].context.device_id)
 
         cls_prob_dict = dict(zip(self.fpn_keys, in_data[0:len(self.fpn_keys)]))
         bbox_pred_dict = dict(zip(self.fpn_keys, in_data[len(self.fpn_keys):2*len(self.fpn_keys)]))
